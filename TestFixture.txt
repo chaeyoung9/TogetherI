@@ -1,3 +1,269 @@
-20201016 19:00 강원 인천 강릉종합운동장
-20201024 16:30 인천 부산 인천축구전용경기장
-20201031 15:00 서울 인천 서울월드컵경기장
+package macro;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.v112.network.Network;
+import org.openqa.selenium.support.ui.Select;
+
+public class Insiseol3 {
+
+	private static WebElement element;
+	private static String url;
+	private static ChromeDriver cd;
+	
+	/*
+	 * partcd, placecd 별 위치
+	 * 1,1 대공원축구장
+	 * 2,2 대공원풋살장1
+	 * 2,5 대공원풋살장2
+	 * 2,6 대공원풋살장3
+	 * 3,3 중앙공원축구장
+	 * 4,4 원적산공원축구장
+	 */
+	private static String partcd;
+	private static String placecd; 
+	
+	private static int[] inputVal = new int[4];
+
+	// 1. 드라이버 설치 경로
+	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
+	public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+
+	public static void init() {
+		// WebDriver 경로 설정
+		System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+
+		// 2. WebDriver 옵션 설정
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--start-maximized");
+		options.addArguments("--disable-popup-blocking");
+		//options.addArguments("--headless=new");
+		
+		// 자바스크립트 비활성화
+		//HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+		//chromePrefs.put("profile.default_content_setting_values.javascript", 2);
+		//options.setExperimentalOption("prefs", chromePrefs);
+		
+		
+		cd = new ChromeDriver(options);
+		cd.getDevTools().createSession();
+	    cd.getDevTools().send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+	    cd.getDevTools().send(Network.setBlockedURLs(Arrays.asList(
+	            "*/devtools-detector.js")));
+		
+		//url = "https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=01";
+        url = "https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=04&placecd=4&schy=2023&schm=9";
+	}
+
+	public static void input() throws IOException {
+		String input = "";
+		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+		
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("ID선택");
+			System.out.println("__________________");
+			System.out.println("1.태경");
+			System.out.println("2.현우");
+			System.out.println("3.지수");
+			System.out.println("4.채영");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				inputVal[0] = Integer.parseInt(input);
+			}
+		}
+		
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("위치 선택");
+			System.out.println("__________________");
+			System.out.println("1.원적산");
+			System.out.println("2.중앙공원");
+			System.out.println("3.대공원");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				inputVal[1] = Integer.parseInt(input);
+				switch(inputVal[1]) {
+					/*
+					 * partcd, placecd 별 위치
+					 * 1,1 대공원축구장
+					 * 2,2 대공원풋살장1
+					 * 2,5 대공원풋살장2
+					 * 2,6 대공원풋살장3
+					 * 3,3 중앙공원축구장
+					 * 4,4 원적산공원축구장
+					 */
+					case 1 : partcd = "04"; placecd = "4"; break;
+					case 2 : partcd = "03"; placecd = "3"; break;
+					case 3 : partcd = "01"; placecd = "1"; break;
+				}
+				input = "";
+			}
+		}
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("날짜를 입력해주세요 (예시: 20230801"");
+			System.out.println("__________________");
+			System.out.println("1. 0600-0800");
+			System.out.println("2. 0800-1000");
+			System.out.println("3. 1000-1200");
+			System.out.println("4. 1200-1400");
+			System.out.println("5. 1400-1600");
+			System.out.println("6. 1600-1800");
+			System.out.println("7. 1800-2000");
+			System.out.println("8. 2000-2200");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				inputVal[2] = Integer.parseInt(input);
+				input = "";
+			}
+		}
+		
+		
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("시간선택");
+			System.out.println("__________________");
+			System.out.println("1. 0600-0800");
+			System.out.println("2. 0800-1000");
+			System.out.println("3. 1000-1200");
+			System.out.println("4. 1200-1400");
+			System.out.println("5. 1400-1600");
+			System.out.println("6. 1600-1800");
+			System.out.println("7. 1800-2000");
+			System.out.println("8. 2000-2200");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				inputVal[2] = Integer.parseInt(input);
+			}
+		}
+
+		
+		
+		
+		StringBuffer sbUrl = new StringBuffer();
+		sbUrl.append("https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=");
+		sbUrl.append(partcd);
+		sbUrl.append("&placecd=");
+		sbUrl.append(placecd);
+		sbUrl.append("&schy=");
+		sbUrl.append("2023");
+		sbUrl.append("&schm=");
+		sbUrl.append("9");
+		
+		url = sbUrl.toString();
+		System.out.println(url);
+		
+		bf.close();
+	}
+
+	
+	
+	public static void login() {
+		 cd.get(url);
+		//Thread.sleep(2000); // 3. 페이지 로딩 대기 시간
+
+		// 4. 로그인 버튼 클릭
+		
+		  //element = driver.findElement(By.className("txtPC_LoginID")); 
+		  //element.click();
+		  
+		  //Thread.sleep(1000);
+		  
+		 
+   		  cd.findElement(By.xpath("/html/body/div/header/div/aside/ul/li/a")).click(); //로그인 버튼 클릭
+   		  
+   		 Set<String> windowId = cd.getWindowHandles();    // get  window id of current window
+         Iterator<String> itererator = windowId.iterator();   
+
+         String mainWinID = itererator.next();
+         String loginInPopup = itererator.next();
+
+         cd.switchTo().window(loginInPopup);
+   		  
+   		  
+
+		  element = cd.findElement(By.xpath("//*[@id=\"login_id\"]"));
+		  element.sendKeys("cylash9");
+		 
+		  element = cd.findElement(By.xpath("//*[@id=\"login_pwd\"]"));
+		  element.sendKeys("rktcjs123!");
+
+		  cd.findElement(By.xpath("//*[@id=\"member\"]/div/form/p/input")).click();
+          cd.switchTo().alert().accept();
+          cd.switchTo().window(mainWinID);
+          cd.get(url);
+	}
+
+	
+	public static void selectPlace() {
+		//cd.get(url2);
+		/*
+		 * Select place1 = new Select(cd.findElement(By.xpath("//*[@id=\"partcd\"]")));
+		 * place1.selectByIndex(4);
+		 * 
+		 * Select place2 = new Select(cd.findElement(By.xpath("//*[@id=\"placecd\"]")));
+		 * place2.selectByIndex(1);
+		 */
+		
+		cd.findElement(By.xpath("//*[@id=\"searchform\"]/input")).click();
+		
+	}
+	
+	public static void reserve() {
+		cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[3]/table/tbody/tr[4]/td[3]/ul/li[2]/a")).click();
+		
+        //인원 수
+		cd.findElement(By.xpath("//*[@id=\"inwon\"]")).sendKeys("15");
+         
+		//동의사항
+        cd.findElement(By.xpath("//*[@id=\"agree_y1\"]")).click();
+        cd.findElement(By.xpath("//*[@id=\"agree_y2\"]")).click();
+        cd.findElement(By.xpath("//*[@id=\"agree_y3\"]")).click();
+        cd.findElement(By.xpath(" //*[@id=\"detail_con\"]/form/div[6]/input")).click();
+
+        //cd.switchTo().alert().accept();
+	
+      //*[@id="detail_con"]/div[3]/table/tbody/tr[4]/td[2]/ul/li[1]/a
+      //*[@id="detail_con"]/div[3]/table/tbody/tr[4]/td[2]/ul/li[2]/a
+        
+	}
+	
+	
+	
+
+	public static void main(String[] args) {
+		try {
+			input();
+			//init();
+			//login();
+			//selectPlace();
+			//reserve();
+			  
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+}
