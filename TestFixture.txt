@@ -3,7 +3,11 @@ package macro;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
@@ -13,7 +17,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.v112.network.Network;
-import org.openqa.selenium.support.ui.Select;
 
 public class Insiseol3 {
 
@@ -147,6 +150,36 @@ public class Insiseol3 {
 			}
 		}
 		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = null;
+		
+		// 특정 날짜 입력하는곳 . 함수로 사용시 인자로 받으면 됩니다.
+		String strDate = "2023-08-25";
+		
+		
+		try {	//정한 형식으로 사용합니다.
+			date = formatter.parse(strDate);
+		} catch (ParseException e) {
+		}
+		
+		//보시면 알겠지만 초,분,시간,일 을 적용하고 맨뒤의 값은 임의로 조정이 가능합니다.
+		//결과를 보고 조정 하면 되겠습니다. 
+		//하지만 이대로 사용하시면 됩니다.
+		date = new Date(date.getTime() + (1000 * 60 * 60 * 24 - 1)); 
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
+		//각각의 원하는 데이터를 얻어 옵니다.
+		int weekNum = cal.get(Calendar.WEEK_OF_MONTH); // 해당년의 주차 구해옵니다.
+		int dayNum = cal.get(Calendar.DAY_OF_WEEK); // 요일을 구해옵니다.
+		
+		//출력해서 결과를 알아 봅니다.
+		System.out.println("해당년의 주차 weekNum : "+weekNum);		
+		System.out.println("요일dayNum : "+dayNum);
+		
+		
+		
+		
 		input = "";
 		while(input.length() != 1) {
 			System.out.println("__________________");
@@ -174,6 +207,9 @@ public class Insiseol3 {
 		System.out.println("Day: " + day);
 		System.out.println("아이디: " + accDetail[memId-1][0]);
 		System.out.println("비번: " + accDetail[memId-1][1]);
+		
+		
+		
 		
 		
 		
@@ -279,12 +315,14 @@ public class Insiseol3 {
 
 	public static void main(String[] args) {
 		try {
-			input();
-			init();
-			login();
-			//selectPlace();
-			reserve();
-			  
+			//input();
+			//init();
+			//login();
+			//reserve();
+			
+			
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
