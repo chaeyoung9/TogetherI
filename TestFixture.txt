@@ -21,6 +21,9 @@ public class Insiseol3 {
 	private static String url;
 	private static ChromeDriver cd;
 	
+	
+	private static int memId ;
+	
 	/*
 	 * partcd, placecd 별 위치
 	 * 1,1 대공원축구장
@@ -33,7 +36,14 @@ public class Insiseol3 {
 	private static String partcd;
 	private static String placecd; 
 	
-	private static int[] inputVal = new int[4];
+	private static String accDetail[][] = {{"kobcgh","rktcjs123!"},{"twopilot","rktcjs123!"},{"beronfoot","rktcjs123!"},{"cylash9", "rktcjs123!"}};
+	
+	//예약 날짜
+	private static String year; 
+	private static String month; 
+	private static String day;
+	
+	private static String timeSession;
 
 	// 1. 드라이버 설치 경로
 	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
@@ -62,7 +72,7 @@ public class Insiseol3 {
 	            "*/devtools-detector.js")));
 		
 		//url = "https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=01";
-        url = "https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=04&placecd=4&schy=2023&schm=9";
+        //url = "https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=04&placecd=4&schy=2023&schm=9";
 	}
 
 	public static void input() throws IOException {
@@ -82,10 +92,11 @@ public class Insiseol3 {
 				System.out.println("값이 유효하지 않습니다");
 				continue;
 			} else {
-				inputVal[0] = Integer.parseInt(input);
+				memId = Integer.parseInt(input);
 			}
 		}
-		
+
+		input = "";
 		while(input.length() != 1) {
 			System.out.println("__________________");
 			System.out.println("위치 선택");
@@ -98,8 +109,7 @@ public class Insiseol3 {
 				System.out.println("값이 유효하지 않습니다");
 				continue;
 			} else {
-				inputVal[1] = Integer.parseInt(input);
-				switch(inputVal[1]) {
+				switch(input) {
 					/*
 					 * partcd, placecd 별 위치
 					 * 1,1 대공원축구장
@@ -109,36 +119,35 @@ public class Insiseol3 {
 					 * 3,3 중앙공원축구장
 					 * 4,4 원적산공원축구장
 					 */
-					case 1 : partcd = "04"; placecd = "4"; break;
-					case 2 : partcd = "03"; placecd = "3"; break;
-					case 3 : partcd = "01"; placecd = "1"; break;
+					case "1" : partcd = "04"; placecd = "4"; break;
+					case "2" : partcd = "03"; placecd = "3"; break;
+					case "3" : partcd = "01"; placecd = "1"; break;
 				}
-				input = "";
 			}
 		}
-		while(input.length() != 1) {
+	
+		input = "";
+		while(input.length() != 8) {
 			System.out.println("__________________");
-			System.out.println("날짜를 입력해주세요 (예시: 20230801"");
+			System.out.println("날짜를 입력해주세요 (예시: 20230801)");
 			System.out.println("__________________");
-			System.out.println("1. 0600-0800");
-			System.out.println("2. 0800-1000");
-			System.out.println("3. 1000-1200");
-			System.out.println("4. 1200-1400");
-			System.out.println("5. 1400-1600");
-			System.out.println("6. 1600-1800");
-			System.out.println("7. 1800-2000");
-			System.out.println("8. 2000-2200");
 			input = bf.readLine().trim();
-			if (input.length() != 1) {
-				System.out.println("값이 유효하지 않습니다");
+			if (input.length() != 8) {
+				System.out.println("날짜 값이 유효하지 않습니다");
 				continue;
 			} else {
-				inputVal[2] = Integer.parseInt(input);
-				input = "";
+				year = input.substring(0, 4);
+				
+				if (input.substring(5,5).equals("0")) {
+					month = input.substring(6, 6);
+				} else {
+					month = input.substring(5, 6);
+				}
+				day = input.substring(6, 8);
 			}
 		}
 		
-		
+		input = "";
 		while(input.length() != 1) {
 			System.out.println("__________________");
 			System.out.println("시간선택");
@@ -156,10 +165,15 @@ public class Insiseol3 {
 				System.out.println("값이 유효하지 않습니다");
 				continue;
 			} else {
-				inputVal[2] = Integer.parseInt(input);
+				timeSession = input;
 			}
 		}
-
+		
+		System.out.println("Year: " + year);
+		System.out.println("Month: " + month);
+		System.out.println("Day: " + day);
+		System.out.println("아이디: " + accDetail[memId-1][0]);
+		System.out.println("비번: " + accDetail[memId-1][1]);
 		
 		
 		
@@ -169,9 +183,9 @@ public class Insiseol3 {
 		sbUrl.append("&placecd=");
 		sbUrl.append(placecd);
 		sbUrl.append("&schy=");
-		sbUrl.append("2023");
+		sbUrl.append(year);
 		sbUrl.append("&schm=");
-		sbUrl.append("9");
+		sbUrl.append(month);
 		
 		url = sbUrl.toString();
 		System.out.println(url);
@@ -206,10 +220,10 @@ public class Insiseol3 {
    		  
 
 		  element = cd.findElement(By.xpath("//*[@id=\"login_id\"]"));
-		  element.sendKeys("cylash9");
+		  element.sendKeys(accDetail[memId-1][0]);
 		 
 		  element = cd.findElement(By.xpath("//*[@id=\"login_pwd\"]"));
-		  element.sendKeys("rktcjs123!");
+		  element.sendKeys(accDetail[memId-1][1]);
 
 		  cd.findElement(By.xpath("//*[@id=\"member\"]/div/form/p/input")).click();
           cd.switchTo().alert().accept();
@@ -227,8 +241,21 @@ public class Insiseol3 {
 		 * Select place2 = new Select(cd.findElement(By.xpath("//*[@id=\"placecd\"]")));
 		 * place2.selectByIndex(1);
 		 */
+
+		int webMonth = Integer.parseInt(cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[3]/div/p/span")).getText());
+		int setMonth = Integer.parseInt(timeSession);
 		
-		cd.findElement(By.xpath("//*[@id=\"searchform\"]/input")).click();
+		while(setMonth != webMonth) {
+			if (webMonth > setMonth) {//현재페이지가 예약월보다 적을때
+				cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[3]/div/ul/li[1]/a4")).click(); 
+			} else if (webMonth < setMonth) {//현재페이지가 예약월보다 클때
+				cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[3]/div/ul/li[2]/a")).click(); 
+			}
+			webMonth = Integer.parseInt(cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[3]/div/p/span")).getText());
+		}
+		
+		//조회
+		cd.findElement(By.xpath("//*[@id=\"searchform\"]/input")).click(); 
 		
 	}
 	
@@ -245,10 +272,6 @@ public class Insiseol3 {
         cd.findElement(By.xpath(" //*[@id=\"detail_con\"]/form/div[6]/input")).click();
 
         //cd.switchTo().alert().accept();
-	
-      //*[@id="detail_con"]/div[3]/table/tbody/tr[4]/td[2]/ul/li[1]/a
-      //*[@id="detail_con"]/div[3]/table/tbody/tr[4]/td[2]/ul/li[2]/a
-        
 	}
 	
 	
@@ -257,10 +280,10 @@ public class Insiseol3 {
 	public static void main(String[] args) {
 		try {
 			input();
-			//init();
-			//login();
+			init();
+			login();
 			//selectPlace();
-			//reserve();
+			reserve();
 			  
 		} catch (Exception e) {
 			e.printStackTrace();
