@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,6 +26,7 @@ public class Insiseol3 {
 	private static String url;
 	private static ChromeDriver cd;
 	
+	private static int testYn;
 	
 	private static int memId ;
 	
@@ -45,8 +48,13 @@ public class Insiseol3 {
 	private static String year; 
 	private static String month; 
 	private static String day;
+	private static String weekNum;
+	private static String dayNum;
 	
 	private static String timeSession;
+	
+	private static String targetLink;
+	private static String classCheck;
 
 	// 1. 드라이버 설치 경로
 	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
@@ -81,7 +89,31 @@ public class Insiseol3 {
 	public static void input() throws IOException {
 		String input = "";
 		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("GCFC 예약 시스템 v1.0");
+		System.out.println("시작 전 아래 사이트에서 크롬 버전에 맞는 드라이버를 다운 받아주세요.");
+		System.out.println("https://chromedriver.chromium.org/downloads");
+		System.out.println("크롬드라이버 경로는 C:\\ 에 위치하여야 합니다");
+		System.out.println();
 		
+		//테스트 , 예약 여부
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("테스트 , 예약. 테스트는 예약 직전까지만 감");
+			System.out.println("__________________");
+			System.out.println("1.테스트");
+			System.out.println("2.예약");
+			input = bf.readLine().trim();
+			if (input.length() != 1 || (!input.equals("1") && !input.equals("2"))) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				testYn = Integer.parseInt(input);
+			}
+		}
+		
+
+		//계정선택
+		input = "";
 		while(input.length() != 1) {
 			System.out.println("__________________");
 			System.out.println("ID선택");
@@ -99,6 +131,7 @@ public class Insiseol3 {
 			}
 		}
 
+		//경기장 선택
 		input = "";
 		while(input.length() != 1) {
 			System.out.println("__________________");
@@ -129,6 +162,7 @@ public class Insiseol3 {
 			}
 		}
 	
+		//날짜 입력
 		input = "";
 		while(input.length() != 8) {
 			System.out.println("__________________");
@@ -154,32 +188,22 @@ public class Insiseol3 {
 		Date date = null;
 		
 		// 특정 날짜 입력하는곳 . 함수로 사용시 인자로 받으면 됩니다.
-		String strDate = "2023-08-25";
-		
+		String strDate = year + "-" + month + "-" + day;
 		
 		try {	//정한 형식으로 사용합니다.
 			date = formatter.parse(strDate);
-		} catch (ParseException e) {
+			} catch (ParseException e) {
 		}
 		
-		//보시면 알겠지만 초,분,시간,일 을 적용하고 맨뒤의 값은 임의로 조정이 가능합니다.
-		//결과를 보고 조정 하면 되겠습니다. 
-		//하지만 이대로 사용하시면 됩니다.
 		date = new Date(date.getTime() + (1000 * 60 * 60 * 24 - 1)); 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		
-		//각각의 원하는 데이터를 얻어 옵니다.
-		int weekNum = cal.get(Calendar.WEEK_OF_MONTH); // 해당년의 주차 구해옵니다.
-		int dayNum = cal.get(Calendar.DAY_OF_WEEK); // 요일을 구해옵니다.
-		
-		//출력해서 결과를 알아 봅니다.
-		System.out.println("해당년의 주차 weekNum : "+weekNum);		
-		System.out.println("요일dayNum : "+dayNum);
+		weekNum = String.valueOf(cal.get(Calendar.WEEK_OF_MONTH)); // 해당월의 주차.
+		dayNum = String.valueOf(cal.get(Calendar.DAY_OF_WEEK)); // 요일을 구해옵니다.
 		
 		
-		
-		
+		//경기시간 선택
 		input = "";
 		while(input.length() != 1) {
 			System.out.println("__________________");
@@ -202,16 +226,29 @@ public class Insiseol3 {
 			}
 		}
 		
+		//입력 결과
 		System.out.println("Year: " + year);
 		System.out.println("Month: " + month);
 		System.out.println("Day: " + day);
+		System.out.println("월 주차 : "+weekNum);		
+		System.out.println("요일 숫자 : "+dayNum);
 		System.out.println("아이디: " + accDetail[memId-1][0]);
-		System.out.println("비번: " + accDetail[memId-1][1]);
+		//System.out.println("비번: " + accDetail[memId-1][1]);
 		
 		
+		////*[@id="detail_con"]/div[3]/table/tbody/tr[주차]/td[일차]/ul/li[시간]
+		StringBuffer targetUrl = new StringBuffer();
+		targetUrl.append("//*[@id=\"detail_con\"]/div[3]/table/tbody/tr[");
+		targetUrl.append(weekNum);
+		targetUrl.append("]/td[");
+		targetUrl.append(dayNum);
+		targetUrl.append("]/ul/li[");
+		targetUrl.append(timeSession);
+		targetUrl.append("]");
+		classCheck = targetUrl.toString(); //classname 확인 용도
 		
-		
-		
+		targetUrl.append("/a");
+		targetLink = targetUrl.toString(); 
 		
 		StringBuffer sbUrl = new StringBuffer();
 		sbUrl.append("https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=");
@@ -224,8 +261,9 @@ public class Insiseol3 {
 		sbUrl.append(month);
 		
 		url = sbUrl.toString();
-		System.out.println(url);
-		
+		//System.out.println(targetLink);
+		//System.out.println(url);
+
 		bf.close();
 	}
 
@@ -233,17 +271,7 @@ public class Insiseol3 {
 	
 	public static void login() {
 		 cd.get(url);
-		//Thread.sleep(2000); // 3. 페이지 로딩 대기 시간
-
-		// 4. 로그인 버튼 클릭
-		
-		  //element = driver.findElement(By.className("txtPC_LoginID")); 
-		  //element.click();
-		  
-		  //Thread.sleep(1000);
-		  
-		 
-   		  cd.findElement(By.xpath("/html/body/div/header/div/aside/ul/li/a")).click(); //로그인 버튼 클릭
+		 cd.findElement(By.xpath("/html/body/div/header/div/aside/ul/li/a")).click(); //로그인 버튼 클릭
    		  
    		 Set<String> windowId = cd.getWindowHandles();    // get  window id of current window
          Iterator<String> itererator = windowId.iterator();   
@@ -255,16 +283,16 @@ public class Insiseol3 {
    		  
    		  
 
-		  element = cd.findElement(By.xpath("//*[@id=\"login_id\"]"));
-		  element.sendKeys(accDetail[memId-1][0]);
-		 
-		  element = cd.findElement(By.xpath("//*[@id=\"login_pwd\"]"));
-		  element.sendKeys(accDetail[memId-1][1]);
+		 element = cd.findElement(By.xpath("//*[@id=\"login_id\"]"));
+		 element.sendKeys(accDetail[memId-1][0]);
+		
+		 element = cd.findElement(By.xpath("//*[@id=\"login_pwd\"]"));
+		 element.sendKeys(accDetail[memId-1][1]);
 
-		  cd.findElement(By.xpath("//*[@id=\"member\"]/div/form/p/input")).click();
-          cd.switchTo().alert().accept();
-          cd.switchTo().window(mainWinID);
-          cd.get(url);
+		 cd.findElement(By.xpath("//*[@id=\"member\"]/div/form/p/input")).click();
+         cd.switchTo().alert().accept();
+         cd.switchTo().window(mainWinID);
+         cd.get(url);
 	}
 
 	
@@ -295,19 +323,34 @@ public class Insiseol3 {
 		
 	}
 	
-	public static void reserve() {
-		cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[3]/table/tbody/tr[4]/td[3]/ul/li[2]/a")).click();
+	public static void reserve() throws InterruptedException {
+	    String visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
+	    System.out.println(visibility);
+	    Date date = null;
+	    LocalTime now = LocalTime.now();
+
+   		while (visibility.equals("close")) {
+   			now = LocalTime.now();
+        	System.out.println("새로고침. 현재시간: " + now.getHour() + ":" + now.getMinute()+":"+now.getSecond());
+    		cd.navigate().refresh();
+    		Thread.sleep(100);
+    		visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
+    	}
+        
+        cd.findElement(By.xpath(targetLink)).click();
 		
         //인원 수
-		cd.findElement(By.xpath("//*[@id=\"inwon\"]")).sendKeys("15");
+        cd.findElement(By.xpath("//*[@id=\"inwon\"]")).sendKeys("15");
          
 		//동의사항
         cd.findElement(By.xpath("//*[@id=\"agree_y1\"]")).click();
         cd.findElement(By.xpath("//*[@id=\"agree_y2\"]")).click();
         cd.findElement(By.xpath("//*[@id=\"agree_y3\"]")).click();
         cd.findElement(By.xpath(" //*[@id=\"detail_con\"]/form/div[6]/input")).click();
-
-        //cd.switchTo().alert().accept();
+            
+        if (testYn == 2) {
+        	cd.switchTo().alert().accept();
+        }
 	}
 	
 	
@@ -315,13 +358,10 @@ public class Insiseol3 {
 
 	public static void main(String[] args) {
 		try {
-			//input();
-			//init();
-			//login();
-			//reserve();
-			
-			
-			
+			input();
+			init();
+			login();
+			reserve();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
