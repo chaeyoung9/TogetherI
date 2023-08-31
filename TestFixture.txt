@@ -18,13 +18,18 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.devtools.v112.network.Network;
+import org.openqa.selenium.devtools.v115.network.Network;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 
-public class Insiseol3 {
+public class GCFCReserve {
 
 	private static WebElement element;
 	private static String url;
-	private static ChromeDriver cd;
+	
+	
+	//private static ChromeDriver cd;
+	private static EdgeDriver cd;
 	
 	private static int testYn;
 	
@@ -57,15 +62,21 @@ public class Insiseol3 {
 	private static String classCheck;
 
 	// 1. 드라이버 설치 경로
-	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-	public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+	//public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
+	//public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+	
+	
+	public static String WEB_DRIVER_ID = "webdriver.edge.driver";
+	public static String WEB_DRIVER_PATH = "C:/msedgedriver86.exe";
+	
 
 	public static void init() {
 		// WebDriver 경로 설정
 		System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
 
 		// 2. WebDriver 옵션 설정
-		ChromeOptions options = new ChromeOptions();
+		//ChromeOptions options = new ChromeOptions();
+		EdgeOptions options = new EdgeOptions();
 		options.addArguments("--start-maximized");
 		options.addArguments("--disable-popup-blocking");
 		//options.addArguments("--headless=new");
@@ -76,7 +87,9 @@ public class Insiseol3 {
 		//options.setExperimentalOption("prefs", chromePrefs);
 		
 		
-		cd = new ChromeDriver(options);
+		//cd = new ChromeDriver(options);
+		
+		cd = new EdgeDriver(options);
 		cd.getDevTools().createSession();
 	    cd.getDevTools().send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
 	    cd.getDevTools().send(Network.setBlockedURLs(Arrays.asList(
@@ -90,8 +103,9 @@ public class Insiseol3 {
 		String input = "";
 		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("GCFC 예약 시스템 v1.0");
-		System.out.println("시작 전 아래 사이트에서 크롬 버전에 맞는 드라이버를 다운 받아주세요.");
-		System.out.println("https://chromedriver.chromium.org/downloads");
+		System.out.println("시작 전 아래 사이트에서 Edge 버전에 맞는 드라이버를 다운 받아주세요.");
+//		System.out.println("https://chromedriver.chromium.org/downloads");
+		System.out.println("https://developer.microsoft.com/ko-kr/microsoft-edge/tools/webdriver/");
 		System.out.println("크롬드라이버 경로는 C:\\ 에 위치하여야 합니다");
 		System.out.println();
 		
@@ -328,7 +342,8 @@ public class Insiseol3 {
 	    System.out.println(visibility);
 	    Date date = null;
 	    LocalTime now = LocalTime.now();
-
+	    
+	    
    		while (visibility.equals("close")) {
    			now = LocalTime.now();
         	System.out.println("새로고침. 현재시간: " + now.getHour() + ":" + now.getMinute()+":"+now.getSecond());
@@ -365,6 +380,11 @@ public class Insiseol3 {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
+		} finally {
+			System.out.println("Press Enter key to continue...");
+			try {
+				System.in.read();
+			} catch(Exception e) {}
+		}
 	}
 }
