@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
@@ -15,6 +16,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.v120.network.Network;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class Reserve2 {
 
@@ -80,6 +84,8 @@ public class Reserve2 {
 		//EdgeOptions options = new EdgeOptions();
 		options.addArguments("--start-maximized");
 		options.addArguments("--disable-popup-blocking");
+		//options.addArguments("headless");         //브라우저의 모습을 안띄우겟다.
+		//options.addArguments("--blink-settings=imagesEnabled=false"); //이미지 다운 안받을거야.
 		//options.addArguments("--headless=new");
 		
 		// 자바스크립트 비활성화
@@ -256,6 +262,8 @@ public class Reserve2 {
 		
 		
 		StringBuffer sbUrl = new StringBuffer();
+        //https://www.bpss.or.kr:444/nbsc/fmcs/16?facilities_type=C&base_date=20240501&rent_type=1001&center=BPSSSPORTS01&part=12&place=8#regist_list 평일
+		//https://www.bpss.or.kr:444/nbsc/fmcs/16?facilities_type=C&base_date=20240301&rent_type=1001&center=BPSSSPORTS01&part=13&place=9#regist_list 
 		sbUrl.append("https://www.bpss.or.kr:444/nbsc/fmcs/16?facilities_type=T&base_date=");
 		sbUrl.append(dateStr);
 		sbUrl.append("&rent_type=1001&center=BPSSSPORTS01&part=13&place=9#regist_list");
@@ -289,19 +297,24 @@ public class Reserve2 {
 	//         cd.findElement(By.xpath("//*[@id=\"submenu_id_30\"]")).click();
 	//         cd.findElement(By.name("checkbox_time_0")).click();
 	        
-         Thread.sleep(2000);
+//         Thread.sleep(2000);
+	         
+         WebDriverWait wait = new WebDriverWait(cd, Duration.ofSeconds(10000));
+         //new WebDriverWait(cd, 100000).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\\\"checkbox_time_7\\")));
+         //wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\\\"checkbox_time_7\\")));
+	         
          } catch(Exception e) {
         	 
          }finally {
         	
-        	 cd.findElement(By.xpath("//*[@id=\"checkbox_time_7\"]")).click();
-        	 cd.findElement(By.xpath("//*[@id=\"contents\"]/article/div/div/div[7]/button")).click();
-        	 
-        	
-        	 cd.findElement(By.xpath("//*[@id=\"users\"]")).sendKeys("12");
-        	 cd.findElement(By.xpath("//*[@id=\"purpose\"]")).sendKeys("단체운동");
-        	 cd.findElement(By.xpath("//*[@id=\"agree_use1\"]")).click();
-        	 cd.findElement(By.xpath("//*[@id=\"writeForm\"]/fieldset/p[2]/button")).click();
+//        	 cd.findElement(By.xpath("//*[@id=\"checkbox_time_7\"]")).click();
+//        	 cd.findElement(By.xpath("//*[@id=\"contents\"]/article/div/div/div[7]/button")).click();
+//        	 
+//        	
+//        	 cd.findElement(By.xpath("//*[@id=\"users\"]")).sendKeys("12");
+//        	 cd.findElement(By.xpath("//*[@id=\"purpose\"]")).sendKeys("단체운동");
+//        	 cd.findElement(By.xpath("//*[@id=\"agree_use1\"]")).click();
+        	// cd.findElement(By.xpath("//*[@id=\"writeForm\"]/fieldset/p[2]/button")).click();
         	 
         	
         	 //cd.findElement(By.xpath("/html/body/div[2]/div[2]/div/div[2]/section/div/article/div/div/div[5]/div[2]/div/table/tbody/tr[8]/td[1]/input")).click();
