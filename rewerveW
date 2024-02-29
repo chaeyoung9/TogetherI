@@ -1,0 +1,366 @@
+package macro;
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.v120.network.Network;
+
+public class Reserve2 {
+
+	private static WebElement element;
+	private static String url;
+	private static String targetCheck;
+	
+    private static ChromeDriver cd;
+	//private static EdgeDriver cd;
+	
+	private static int testYn;
+	
+	private static int memId ;
+	
+	/*
+	 * partcd, placecd 별 위치
+	 * 1,1 대공원축구장
+	 * 2,2 대공원풋살장1
+	 * 2,5 대공원풋살장2
+	 * 2,6 대공원풋살장3
+	 * 3,3 중앙공원축구장
+	 * 4,4 원적산공원축구장
+	 */
+	private static String partcd;
+	private static String placecd; 
+	
+	private static String accDetail[][] = {{"frodo1191","gcfc2018!!"},{"twopilot","gcfc2018!!"},{"beronfoot","gcfc2018!!"},{"cylash9", "gcfc2018!!"}};
+	
+	//예약 날짜
+	private static String year; 
+	private static String month; 
+	private static String day;
+	private static String weekNum;
+	private static String dayNum;
+	
+	private static String timeSession;
+	
+	private static String targetLink;
+	private static String targetDay;
+	private static String classCheck;
+
+	// 1. 드라이버 설치 경로
+	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
+
+	public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+
+	//macOS
+	//public static String WEB_DRIVER_PATH = "/Users/chaeyoung/Desktop/chromedriver";
+
+	
+	
+	//public static String WEB_DRIVER_ID = "webdriver.edge.driver";
+	//public static String WEB_DRIVER_PATH = "C:/msedgedriver86.exe";
+	
+
+	public static void init() {
+		// WebDriver 경로 설정
+		System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+//		System.setProperty("webdriver.chrome.driver", WEB_DRIVER_PATH);
+
+		// 2. WebDriver 옵션 설정
+		ChromeOptions options = new ChromeOptions();
+		//EdgeOptions options = new EdgeOptions();
+		options.addArguments("--start-maximized");
+		options.addArguments("--disable-popup-blocking");
+		//options.addArguments("--headless=new");
+		
+		// 자바스크립트 비활성화
+		//HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+		//chromePrefs.put("profile.default_content_setting_values.javascript", 2);
+		//options.setExperimentalOption("prefs", chromePrefs);
+		
+		
+		cd = new ChromeDriver(options);
+		//cd = new EdgeDriver(options);
+		cd.getDevTools().createSession();
+	    cd.getDevTools().send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+//	    cd.getDevTools().send(Network.setBlockedURLs(Arrays.asList(
+//	            "*/devtools-detector.js")));
+		
+		//url = "https://www.bpss.or.kr:444/nbsc/fmcs/1";
+		//url = "https://www.bpss.or.kr:444/nbsc/fmcs/16?facilities_type=C&base_date=20240201&rent_type=1001&center=BPSSSPORTS01&part=13&place=9#regist_list";
+        //url = "https://reserve.insiseol.or.kr/fmcs/rental/rentalSchedule.do?comcd=I_FMC6&partcd=04&placecd=4&schy=2023&schm=9";
+	}
+
+	public static void input() throws IOException {
+		String input = "";
+		String dateStr = "";
+		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("GCWFC 예약 시스템 v1.0");
+		System.out.println("시작 전 아래 사이트에서 Chrome 버전에 맞는 드라이버를 다운 받아주세요.");
+		System.out.println("https://chromedriver.chromium.org/downloads");
+//		System.out.println("https://developer.microsoft.com/ko-kr/microsoft-edge/tools/webdriver/");
+		System.out.println("크롬드라이버 경로는");
+		System.out.println("윈도우일시 C:\\");
+		System.out.println("맥OS 일시 /usr/var/ 에 위치하여야 합니다.(맥은 아직 미지원)");
+		System.out.println();
+		
+		//테스트 , 예약 여부
+//		while(input.length() != 1) {
+//			System.out.println("__________________");
+//			System.out.println("테스트 , 예약. 테스트는 예약 직전까지만 감");
+//			System.out.println("__________________");
+//			System.out.println("1.테스트");
+//			System.out.println("2.예약");
+//			input = bf.readLine().trim();
+//			if (input.length() != 1 || (!input.equals("1") && !input.equals("2"))) {
+//				System.out.println("값이 유효하지 않습니다");
+//				continue;
+//			} else {
+//				testYn = Integer.parseInt(input);
+//			}
+//		}
+		
+
+		//계정선택
+		input = "";
+//		while(input.length() != 1) {
+//			System.out.println("__________________");
+//			System.out.println("ID선택");
+//			System.out.println("__________________");
+//			System.out.println("1.태경");
+//			System.out.println("2.현우");
+//			System.out.println("3.지수");
+//			System.out.println("4.채영");
+//			input = bf.readLine().trim();
+//			if (input.length() != 1) {
+//				System.out.println("값이 유효하지 않습니다");
+//				continue;
+//			} else {
+//				memId = Integer.parseInt(input);
+//			}
+//		}
+
+		//경기장 선택
+//		input = "";
+//		while(input.length() != 1) {
+//			System.out.println("__________________");
+//			System.out.println("위치 선택");
+//			System.out.println("__________________");
+//			System.out.println("1.원적산");
+//			System.out.println("2.중앙공원");
+//			System.out.println("3.대공원");
+//			input = bf.readLine().trim();
+//			if (input.length() != 1) {
+//				System.out.println("값이 유효하지 않습니다");
+//				continue;
+//			} else {
+//				switch(input) {
+//					/*
+//					 * partcd, placecd 별 위치
+//					 * 1,1 대공원축구장
+//					 * 2,2 대공원풋살장1
+//					 * 2,5 대공원풋살장2
+//					 * 2,6 대공원풋살장3
+//					 * 3,3 중앙공원축구장
+//					 * 4,4 원적산공원축구장
+//					 */
+//					case "1" : partcd = "04"; placecd = "4"; break;
+//					case "2" : partcd = "03"; placecd = "3"; break;
+//					case "3" : partcd = "01"; placecd = "1"; break;
+//				}
+//			}
+//		}
+	
+		//날짜 입력
+		input = "";
+		while(input.length() != 8) {
+			System.out.println("__________________");
+			System.out.println("날짜를 입력해주세요 (예시: 20240201)");
+			System.out.println("__________________");
+			input = bf.readLine().trim();
+			if (input.length() != 8) {
+				System.out.println("날짜 값이 유효하지 않습니다");
+				continue;
+			} else {
+				dateStr = input.toString();
+				year = input.substring(0, 4);
+				
+				if (Integer.valueOf(input.substring(4,6)) < 10) {
+					month = input.substring(5, 6);
+				} else {
+					month = input.substring(4, 6);
+				}
+				day = input.substring(6, 8);
+			}
+		}
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = null;
+		
+		// 특정 날짜 입력하는곳 . 함수로 사용시 인자로 받으면 됩니다.
+		String strDate = year + "-" + month + "-" + day;
+		
+		try {	//정한 형식으로 사용합니다.
+			date = formatter.parse(strDate);
+			} catch (ParseException e) {
+		}
+		
+		date = new Date(date.getTime() + (1000 * 60 * 60 * 24 - 1)); 
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
+		weekNum = String.valueOf(cal.get(Calendar.WEEK_OF_MONTH)); // 해당월의 주차.
+		dayNum = String.valueOf(cal.get(Calendar.DAY_OF_WEEK)); // 요일을 구해옵니다.
+		
+		
+		//경기시간 선택
+		input = "";
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("시간선택");
+			System.out.println("__________________");
+			System.out.println("0. 0600-0800");
+			System.out.println("1. 0800-1000");
+			System.out.println("2. 1000-1200");
+			System.out.println("3. 1200-1400");
+			System.out.println("4. 1400-1600");
+			System.out.println("5. 1600-1800");
+			System.out.println("6. 1800-2000");
+			System.out.println("7. 2000-2200");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				timeSession = input;
+			}
+		}
+		
+		//입력 결과
+		System.out.println("Year: " + year);
+		System.out.println("Month: " + month);
+		System.out.println("Day: " + day);
+		System.out.println("월 주차 : "+weekNum);		
+		System.out.println("요일 숫자 : "+dayNum);
+		//System.out.println("아이디: " + accDetail[memId-1][0]);
+		//System.out.println("비번: " + accDetail[memId-1][1]);
+		
+		
+		StringBuffer sbUrl = new StringBuffer();
+		sbUrl.append("https://www.bpss.or.kr:444/nbsc/fmcs/16?facilities_type=T&base_date=");
+		sbUrl.append(dateStr);
+		sbUrl.append("&rent_type=1001&center=BPSSSPORTS01&part=13&place=9#regist_list");
+		
+		url = sbUrl.toString();
+		System.out.println(targetDay);
+		System.out.println(targetCheck);
+		System.out.println(sbUrl.toString());
+
+		bf.close();
+	}
+
+	
+	
+	public static void login() {
+		 try {
+			 cd.get(url);
+			 cd.findElement(By.xpath("//*[@id=\"process_login\"]")).click(); //로그인 버튼 클릭
+	   		  
+			 element = cd.findElement(By.xpath("//*[@id=\"user_id\"]"));
+			 element.sendKeys("twopilot");
+			
+			 element = cd.findElement(By.xpath("//*[@id=\"user_password\"]"));
+			 element.sendKeys("rktcjs123!");
+			 
+			 cd.findElement(By.xpath("//*[@id=\"memberLoginForm\"]/fieldset/div/p[3]/button")).click();
+	
+	         cd.get(url);
+	         
+	         System.out.println("website loaded");
+	//         cd.findElement(By.xpath("//*[@id=\"submenu_id_30\"]")).click();
+	//         cd.findElement(By.name("checkbox_time_0")).click();
+	        
+         Thread.sleep(2000);
+         } catch(Exception e) {
+        	 
+         }finally {
+        	
+        	 cd.findElement(By.xpath("//*[@id=\"checkbox_time_7\"]")).click();
+        	 cd.findElement(By.xpath("//*[@id=\"contents\"]/article/div/div/div[7]/button")).click();
+        	 
+        	
+        	 cd.findElement(By.xpath("//*[@id=\"users\"]")).sendKeys("12");
+        	 cd.findElement(By.xpath("//*[@id=\"purpose\"]")).sendKeys("단체운동");
+        	 cd.findElement(By.xpath("//*[@id=\"agree_use1\"]")).click();
+        	 cd.findElement(By.xpath("//*[@id=\"writeForm\"]/fieldset/p[2]/button")).click();
+        	 
+        	
+        	 //cd.findElement(By.xpath("/html/body/div[2]/div[2]/div/div[2]/section/div/article/div/div/div[5]/div[2]/div/table/tbody/tr[8]/td[1]/input")).click();
+         }
+       
+	}
+	
+	
+	
+	public static void reserve() throws InterruptedException {
+		//*[@id="date-20240120"]
+		
+
+		cd.findElement(By.xpath(targetDay)).click();
+		cd.findElement(By.xpath(targetCheck)).click();
+//		20240120 0
+//	    String visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
+//	    System.out.println(visibility);
+//	    Date date = null;
+//	    LocalTime now = LocalTime.now();
+//	    
+//	    
+//   		while (visibility.equals("close")) {
+//   			now = LocalTime.now();
+//        	System.out.println("새로고침. 현재시간: " + now.getHour() + ":" + now.getMinute()+":"+now.getSecond());
+//    		cd.navigate().refresh();
+//    		Thread.sleep(100);
+//    		visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
+//    	}
+        
+        cd.findElement(By.xpath("//*[@id=\"contents\"]/article/div/div/div[7]/button")).click();
+		
+        //인원 수
+        cd.findElement(By.xpath("//*[@id=\"inwon\"]")).sendKeys("15");
+         
+		//동의사항
+        cd.findElement(By.xpath("//*[@id=\"agree_y1\"]")).click();
+        cd.findElement(By.xpath("//*[@id=\"agree_y2\"]")).click();
+        cd.findElement(By.xpath("//*[@id=\"agree_y3\"]")).click();
+        cd.findElement(By.xpath(" //*[@id=\"detail_con\"]/form/div[6]/input")).click();
+	}
+	
+	
+	
+
+	public static void main(String[] args) {
+		try {
+			input();
+			init();
+			login();
+			//reserve();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.out.println("Press Enter key to continue...");
+			try {
+				System.in.read();
+			} catch(Exception e) {}
+		}
+	}
+}
