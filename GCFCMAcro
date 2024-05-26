@@ -1,0 +1,385 @@
+package automacro;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.v125.network.Network;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class Wonjeok {
+
+	private static WebElement element;
+	private static String url;
+	
+	private static ChromeOptions options;
+    private static ChromeDriver cd;
+	
+	private static int testYn;
+	
+	private static int memId ;
+	
+	private static String partcd;
+	private static String placecd; 
+	
+	private static String accDetail[][] = {{"frodo1191","gcfc2018!!"},{"twopilot","gcfc2018!!"},{"beronfoot","gcfc2018!!"},{"cylash9", "gcfc2018!!"}};
+	
+	
+	//예약 날짜
+	private static String year; 
+	private static String month; 
+	private static String day;
+	private static String weekNum;
+	private static String dayNum;
+	
+	private static String timeSession;
+	private static String targetLink;
+	private static String classCheck;
+
+	// 1. 드라이버 설치 경로
+	public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
+	public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+	
+
+	public static void init() {
+		// WebDriver 경로 설정
+		System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+
+		// 2. WebDriver 옵션 설정
+		options = new ChromeOptions();
+		//options.addArguments("--start-maximized");
+		options.addArguments("--disable-popup-blocking");
+		
+		// 자바스크립트 비활성화
+		//HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+		//chromePrefs.put("profile.default_content_setting_values.javascript", 2);
+		//options.setExperimentalOption("prefs", chromePrefs);
+		
+		
+		cd = new ChromeDriver(options);
+		//cd = new EdgeDriver(options);
+		cd.getDevTools().createSession();
+	    cd.getDevTools().send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+	    cd.getDevTools().send(Network.setBlockedURLs(Arrays.asList("*/devtools-detector.js"))); //개발자옵션 방지를 방지 
+
+	}
+
+	public static void input() throws IOException {
+		String input = "";
+		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+		
+		//테스트 , 예약 여부
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("테스트 , 예약.");
+			System.out.println("테스트: 로그인 및 로딩 되는지 체크");
+			System.out.println("예약: 예약오픈시간-현재시간 <= 1분 일시 로그인 후 예약 진행");
+			System.out.println("__________________");
+			System.out.println("1.테스트");
+			System.out.println("2.예약");
+			input = bf.readLine().trim();
+			if (input.length() != 1 || (!input.equals("1") && !input.equals("2"))) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				testYn = Integer.parseInt(input);
+			}
+		}
+		
+
+		//계정선택
+		input = "";
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("ID선택");
+			System.out.println("__________________");
+			System.out.println("1.태경");
+			System.out.println("2.현우");
+			System.out.println("3.지수");
+			System.out.println("4.채영");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				memId = Integer.parseInt(input);
+			}
+		}
+	
+		//날짜 입력
+		input = "";
+		while(input.length() != 8) {
+			System.out.println("__________________");
+			System.out.println("날짜를 입력해주세요 (예시: 20230801)");
+			System.out.println("__________________");
+			input = bf.readLine().trim();
+			if (input.length() != 8) {
+				System.out.println("날짜 값이 유효하지 않습니다");
+				continue;
+			} else {
+				year = input.substring(0, 4);
+				
+				if (Integer.valueOf(input.substring(4,6)) < 10) {
+					month = input.substring(5, 6);
+				} else {
+					month = input.substring(4, 6);
+				}
+				day = input.substring(6, 8);
+			}
+		}
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = null;
+		
+		// 특정 날짜 입력하는곳 . 함수로 사용시 인자로 받으면 됩니다.
+		String strDate = year + "-" + month + "-" + day;
+		
+		try {	//정한 형식으로 사용합니다.
+			date = formatter.parse(strDate);
+			} catch (ParseException e) {
+		}
+		
+		date = new Date(date.getTime() + (1000 * 60 * 60 * 24 - 1)); 
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
+		weekNum = String.valueOf(cal.get(Calendar.WEEK_OF_MONTH)); // 해당월의 주차.
+		dayNum = String.valueOf(cal.get(Calendar.DAY_OF_WEEK)); // 요일을 구해옵니다.
+		
+		
+		//경기시간 선택
+		input = "";
+		while(input.length() != 1) {
+			System.out.println("__________________");
+			System.out.println("시간선택");
+			System.out.println("중요: 매월 다름 시간 동일한지 확인 필요");
+			System.out.println("__________________");
+			System.out.println("0. 0600-0800");
+			System.out.println("1. 0800-1000");
+			System.out.println("2. 1000-1200");
+			System.out.println("3. 1200-1400");
+			System.out.println("4. 1400-1600");
+			System.out.println("5. 1600-1800");
+			System.out.println("6. 1800-2000");
+			System.out.println("7. 2000-2200");
+			input = bf.readLine().trim();
+			if (input.length() != 1) {
+				System.out.println("값이 유효하지 않습니다");
+				continue;
+			} else {
+				timeSession = String.valueOf(Integer.parseInt(input)+1);
+			}
+		}
+		
+		//입력 결과
+		System.out.println("Year: " + year);
+		System.out.println("Month: " + month);
+		System.out.println("Day: " + day);
+		System.out.println("월 주차 : "+weekNum);		
+		System.out.println("요일 숫자 : "+dayNum);
+		System.out.println("아이디: " + accDetail[memId-1][0]);
+		
+		
+		////*[@id="detail_con"]/div[3]/table/tbody/tr[주차]/td[일차]/ul/li[시간]
+		StringBuffer targetUrl = new StringBuffer();
+		
+		//*[@id="cal_body"]/tr[6]/td[1]/ul/li[1]
+		//*[@id="cal_body"]/tr[1]/td[4]/ul/li[1]/button
+		//*[@id="cal_body"]/tr[1]/td[6]/ul/li[1]/button
+		targetUrl.append("//*[@id=\"cal_body\"]/tr[");
+		targetUrl.append(weekNum);
+		targetUrl.append("]/td[");
+		targetUrl.append(dayNum);
+		targetUrl.append("]/ul/li[");
+		targetUrl.append(timeSession);
+		targetUrl.append("]");
+		
+		classCheck = targetUrl.toString(); //classname 확인 용도
+		
+		targetUrl.append("/button");
+		targetLink = targetUrl.toString(); 
+		
+		StringBuffer sbUrl = new StringBuffer();
+		sbUrl.append("https://reserve.insiseol.or.kr/");
+		
+		url = sbUrl.toString();
+		
+		bf.close();
+	}
+
+	
+	public static void loginTimeCheck() {
+		String url = "https://reserve.insiseol.or.kr/rent/state_intro.jsp";
+		cd.get(url);
+
+		
+	    Date date = null;
+        // String으로 된 날짜 시간 값
+        String timeString = "16:40:00"; // 예시 시간
+        
+        // String 값을 LocalTime으로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalTime parsedTime = LocalTime.parse(timeString, formatter);
+        LocalTime serverTime = LocalTime.parse(cd.findElement(By.xpath("/html/body/div/header/div/h1/span")).getText(), formatter);
+        
+        
+        // 시간 차이를 초 단위로 계산
+        long differenceInSeconds = ChronoUnit.SECONDS.between(serverTime,parsedTime);
+        
+        System.out.println("예약 오픈 45초 전에 시작됩니다");
+        System.out.println("현재 : " + differenceInSeconds+ "초 남음");
+        while (differenceInSeconds > 45) {
+            System.out.println("입력된 시간: " + parsedTime);
+            System.out.println("현재 시간: " + serverTime);
+            System.out.println("시간 차이 (초): " + differenceInSeconds + "초");	 
+            serverTime = LocalTime.parse(cd.findElement(By.xpath("/html/body/div/header/div/h1/span")).getText(), formatter);
+            differenceInSeconds = ChronoUnit.SECONDS.between(serverTime,parsedTime);
+        }
+        
+        login();
+	}
+	
+	public static void login() {
+		 cd.get(url);
+		 cd.findElement(By.xpath("/html/body/div/div/section[1]/div[2]/div[2]/p/input")).click();
+		 cd.findElement(By.xpath("/html/body/div/aside/ul/li/a")).click(); //로그인 버튼 클릭
+		 
+   		 Set<String> windowId = cd.getWindowHandles();    // get  window id of current window
+         Iterator<String> itererator = windowId.iterator();   
+
+         String mainWinID = itererator.next();
+         String loginInPopup = itererator.next();
+
+         cd.switchTo().window(loginInPopup);
+
+		 element = cd.findElement(By.xpath("//*[@id=\"login_id\"]"));
+		 element.sendKeys(accDetail[memId-1][0]);
+		
+		 element = cd.findElement(By.xpath("//*[@id=\"login_pwd\"]"));
+		 element.sendKeys(accDetail[memId-1][1]);
+
+		 cd.findElement(By.xpath("//*[@id=\"member\"]/div/form/p/input")).click();
+         cd.switchTo().alert().accept();
+         cd.switchTo().window(mainWinID);
+         
+ 		cd.get("https://reserve.insiseol.or.kr/login/newresSSO.do?up_id=06&return_uri=rent/rentalSchedule");
+ 		try {
+ 			setMonthPage(month);
+ 		} catch (Exception e ) {
+ 			setMonthPage(month);
+ 		}
+	}
+
+	
+	public static void setMonthPage(String inMon) {
+		Duration waitTime = Duration.ofSeconds(10000);
+		WebDriverWait wait = new WebDriverWait(cd, waitTime);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")));
+
+		String nowMonth = cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")).getText();
+	    int curMon = Integer.parseInt(nowMonth);
+		int inputMonth = Integer.parseInt(month);
+	    
+
+    	while (curMon != inputMonth) {
+    		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")));
+    		//nowMonth = cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")).getText();
+    	    //curMon = Integer.parseInt(nowMonth);
+
+    		System.out.println(curMon + " " + month + " 예약 월 vs 현재 월 비교중");
+    		if (curMon > inputMonth) {
+    			wait.until(ExpectedConditions.elementToBeClickable(By.className("btn_prev")));
+        		cd.findElement(By.className("btn_prev")).click();
+    			curMon--;
+    		} else if ( curMon < inputMonth) {
+    			wait.until(ExpectedConditions.elementToBeClickable(By.className("btn_next")));
+        		cd.findElement(By.className("btn_next")).click();
+        		curMon++;
+    		}
+    		if (curMon == inputMonth)  break;
+    	}
+	}
+	
+	
+	public static void reserve() throws InterruptedException {
+		Duration waitTime = Duration.ofSeconds(10000);
+		WebDriverWait wait = new WebDriverWait(cd, waitTime);
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(classCheck)));
+		String visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
+	    System.out.println(visibility);
+	    Date date = null;
+	    LocalTime now = LocalTime.now();
+	    
+		while (visibility.equals("close")) {
+   			now = LocalTime.now();
+        	System.out.println("새로고침. 현재시간: " + now.getHour() + ":" + now.getMinute()+":"+now.getSecond());
+        
+        	cd.navigate().refresh();
+    		
+    		try {
+    			setMonthPage(month);
+    		} catch (Exception e) {
+    			setMonthPage(month);
+        	}
+        	wait.until(ExpectedConditions.elementToBeClickable(By.xpath(classCheck)));
+	    	visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
+    	}
+        
+        cd.findElement(By.xpath(targetLink)).click();
+		
+        //인원 수
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"req_inwon\"]")));
+        cd.findElement(By.xpath("//*[@id=\"req_inwon\"]")).sendKeys("15");
+        
+      //*[@id="agree_y1"]
+		//동의사항
+        cd.findElement(By.xpath("//*[@id=\"agree_y1\"]")).click();
+        cd.findElement(By.xpath("//*[@id=\"agree_y2\"]")).click();
+        cd.findElement(By.xpath("//*[@id=\"agree_y5\"]")).click();
+        //cd.findElement(By.xpath(" //*[@id=\"detail_con\"]/form/div[6]/input")).click();
+          
+		cd.findElement(By.xpath("//*[@id=\"answer\"]")).click();
+		 
+	}
+	
+	
+
+	public static void main(String[] args) {
+		try {
+			input();
+			init();
+			if (testYn == 2) {
+				loginTimeCheck();
+			} else {
+				login();
+			}
+			reserve();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.out.println("Press Enter key to continue...");
+			try {
+				System.in.read();
+			} catch(Exception e) {}
+		}
+	}
+}
