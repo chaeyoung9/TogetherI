@@ -17,9 +17,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.v125.fedcm.model.Account;
 import org.openqa.selenium.devtools.v125.network.Network;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -39,7 +41,8 @@ public class Wonjeok {
 	private static String partcd;
 	private static String placecd; 
 	
-	private static String accDetail[][] = {{"frodo1191","gcfc2018!!"},{"twopilot","gcfc2018!!"},{"beronfoot","gcfc2018!!"},{"cylash9", "gcfc2018!!"}};
+	private static String accDetail[][] = {{"frodo1191","gcfc2018!!"},{"twopilot","gcfc2018!!"},{"beronfoot","gcfc2018!!"}
+										,{"cylash9", "gcfc2018!!"},{"qkrcnsdyd", "gcfc2018!!"}};
 	
 	
 	//예약 날짜
@@ -78,7 +81,6 @@ public class Wonjeok {
 		cd.getDevTools().createSession();
 	    cd.getDevTools().send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
 	    cd.getDevTools().send(Network.setBlockedURLs(Arrays.asList("*/devtools-detector.js"))); //개발자옵션 방지를 방지 
-
 	}
 
 	public static void input() throws IOException {
@@ -114,6 +116,8 @@ public class Wonjeok {
 			System.out.println("2.현우");
 			System.out.println("3.지수");
 			System.out.println("4.채영");
+			System.out.println("5.춘용");
+
 			input = bf.readLine().trim();
 			if (input.length() != 1) {
 				System.out.println("값이 유효하지 않습니다");
@@ -192,17 +196,12 @@ public class Wonjeok {
 		System.out.println("Year: " + year);
 		System.out.println("Month: " + month);
 		System.out.println("Day: " + day);
-		System.out.println("월 주차 : "+weekNum);		
-		System.out.println("요일 숫자 : "+dayNum);
+//		System.out.println("월 주차 : "+weekNum);		
+//		System.out.println("요일 숫자 : "+dayNum);
 		System.out.println("아이디: " + accDetail[memId-1][0]);
 		
-		
-		////*[@id="detail_con"]/div[3]/table/tbody/tr[주차]/td[일차]/ul/li[시간]
 		StringBuffer targetUrl = new StringBuffer();
 		
-		//*[@id="cal_body"]/tr[6]/td[1]/ul/li[1]
-		//*[@id="cal_body"]/tr[1]/td[4]/ul/li[1]/button
-		//*[@id="cal_body"]/tr[1]/td[6]/ul/li[1]/button
 		targetUrl.append("//*[@id=\"cal_body\"]/tr[");
 		targetUrl.append(weekNum);
 		targetUrl.append("]/td[");
@@ -211,8 +210,9 @@ public class Wonjeok {
 		targetUrl.append(timeSession);
 		targetUrl.append("]");
 		
+
 		classCheck = targetUrl.toString(); //classname 확인 용도
-		
+		//System.out.println("classCheck : " + classCheck);
 		targetUrl.append("/button");
 		targetLink = targetUrl.toString(); 
 		
@@ -229,10 +229,9 @@ public class Wonjeok {
 		String url = "https://reserve.insiseol.or.kr/rent/state_intro.jsp";
 		cd.get(url);
 
-		
-	    Date date = null;
+		Date date = null;
         // String으로 된 날짜 시간 값
-        String timeString = "16:40:00"; // 예시 시간
+        String timeString = "00:31:50"; // 예시 시간
         
         // String 값을 LocalTime으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -280,71 +279,50 @@ public class Wonjeok {
          cd.switchTo().window(mainWinID);
          
  		cd.get("https://reserve.insiseol.or.kr/login/newresSSO.do?up_id=06&return_uri=rent/rentalSchedule");
- 		try {
- 			setMonthPage(month);
- 		} catch (Exception e ) {
- 			setMonthPage(month);
- 		}
-	}
-
-	
-	public static void setMonthPage(String inMon) {
-		Duration waitTime = Duration.ofSeconds(10000);
-		WebDriverWait wait = new WebDriverWait(cd, waitTime);
-
-		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")));
-
-		String nowMonth = cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")).getText();
-	    int curMon = Integer.parseInt(nowMonth);
-		int inputMonth = Integer.parseInt(month);
-	    
-
-    	while (curMon != inputMonth) {
-    		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")));
-    		//nowMonth = cd.findElement(By.xpath("//*[@id=\"detail_con\"]/div[5]/div/p/span")).getText();
-    	    //curMon = Integer.parseInt(nowMonth);
-
-    		System.out.println(curMon + " " + month + " 예약 월 vs 현재 월 비교중");
-    		if (curMon > inputMonth) {
-    			wait.until(ExpectedConditions.elementToBeClickable(By.className("btn_prev")));
-        		cd.findElement(By.className("btn_prev")).click();
-    			curMon--;
-    		} else if ( curMon < inputMonth) {
-    			wait.until(ExpectedConditions.elementToBeClickable(By.className("btn_next")));
-        		cd.findElement(By.className("btn_next")).click();
-        		curMon++;
-    		}
-    		if (curMon == inputMonth)  break;
-    	}
-	}
+ 	}
 	
 	
 	public static void reserve() throws InterruptedException {
-		Duration waitTime = Duration.ofSeconds(10000);
-		WebDriverWait wait = new WebDriverWait(cd, waitTime);
+		
+		WebDriverWait wait = new WebDriverWait(cd, Duration.ofSeconds(10000));
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(classCheck)));
 		String visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
 	    System.out.println(visibility);
 	    Date date = null;
 	    LocalTime now = LocalTime.now();
-	    
-		while (visibility.equals("close")) {
-   			now = LocalTime.now();
-        	System.out.println("새로고침. 현재시간: " + now.getHour() + ":" + now.getMinute()+":"+now.getSecond());
-        
-        	cd.navigate().refresh();
-    		
-    		try {
-    			setMonthPage(month);
-    		} catch (Exception e) {
-    			setMonthPage(month);
-        	}
-        	wait.until(ExpectedConditions.elementToBeClickable(By.xpath(classCheck)));
+
+	    int inputMonth = Integer.parseInt(month) - 1;
+
+
+	    cd.executeScript("thisDate = new Date(2024 ," + inputMonth +", 1);");
+    	cd.executeScript("getReserveWeekChk().then(getCalendarList);");
+    	
+    	int loop = 0;
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    	LocalTime serverTime = LocalTime.parse(cd.findElement(By.xpath("/html/body/div/header/div/h1/span")).getText(), formatter);
+    	
+	    while(visibility.equals("close")){
+	    	
+		    cd.executeScript("thisDate = new Date(2024 ," + inputMonth+", 1);");
+	    	cd.executeScript("getReserveWeekChk().then(getCalendarList);");
+	    	
+    		//wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(classCheck)));
+    		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(classCheck)));
+    		Thread.sleep(700);
 	    	visibility = cd.findElement(By.xpath(classCheck)).getAttribute("class").trim();
-    	}
-        
+	    	if (visibility.equals("close")) {
+	    		serverTime = LocalTime.parse(cd.findElement(By.xpath("/html/body/div/header/div/h1/span")).getText(), formatter);
+	    		System.out.print("예약 닫혀있음 / ");
+	            System.out.println("현재 시간: " + serverTime);
+	    	} else {
+	    		System.out.println("예약 열림");		
+	    	}
+	    }
+	    
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(targetLink)));
         cd.findElement(By.xpath(targetLink)).click();
-		
+ 
         //인원 수
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"req_inwon\"]")));
         cd.findElement(By.xpath("//*[@id=\"req_inwon\"]")).sendKeys("15");
